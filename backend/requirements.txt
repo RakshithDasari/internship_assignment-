@@ -1,0 +1,28 @@
+# VisionQuest backend (API + Celery worker share this list).
+#
+# PyTorch is NOT listed here on purpose: it ships a different build per hardware,
+# chosen by download server. Install it FIRST, then this file:
+#   CPU (Docker, default):  pip install torch==2.15.0 torchvision==0.29.2 --index-url https://download.pytorch.org/whl/cpu
+#   Intel GPU (XPU):        pip install torch==2.15.0 torchvision==0.29.2 --index-url https://download.pytorch.org/whl/xpu
+#   NVIDIA GPU (CUDA):      pip install torch==2.15.0 torchvision==0.29.2   (see docs/setup.md for the CUDA index)
+#
+# Versions below are the ones verified together on 2026-11-18 (pip check: no conflicts).
+
+# --- Web API ---
+fastapi==0.163.2
+uvicorn[standard]==0.54.0
+python-multipart==0.0.34          # lets FastAPI read file uploads (multipart forms)
+
+# --- Job queue ---
+celery[redis]==5.7.0
+redis==8.1.0                      # also used directly by /health to ping Redis
+
+# --- Computer vision ---
+ultralytics==8.4.215              # YOLO models: predict, track, export
+opencv-python==5.1.0.95           # read/write video frames, draw boxes
+pillow==13.0.0                    # validate and open images
+numpy==2.4.6                      # frame arrays
+lap==0.5.14                       # needed by ByteTrack (object tracking IDs)
+# YOLO-World's text encoder. Ultralytics would otherwise install it from GitHub
+# mid-run; pinning it here installs it up front (requires `git` at install time).
+clip @ git+https://github.com/ultralytics/CLIP.git@7ffa84b3bfa40c42ecc1c77147a855e69cb2dd40
