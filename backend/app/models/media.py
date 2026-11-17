@@ -63,9 +63,9 @@ def write_image(path: Path, frame: np.ndarray, quality: int = 90) -> None:
         raise MediaError("WRITE_FAILED", "Couldn't write the output image.")
 
 
-def save_thumbnail(path: Path, frame: np.ndarray, width: int = 320) -> None:
+def thumbnail(frame: np.ndarray, width: int = 320) -> np.ndarray:
     height = max(1, round(frame.shape[0] * width / frame.shape[1]))
-    write_image(path, cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA), quality=80)
+    return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
 
 
 def transcode_to_h264(src: Path, dst: Path) -> None:

@@ -9,13 +9,28 @@ from app.config import settings
 os.environ.setdefault("YOLO_CONFIG_DIR", str(settings.weights_dir / ".ultralytics"))
 
 import torch  # noqa: E402
+import torchvision  # noqa: E402
 import ultralytics.nn.text_model as yolo_text_model  # noqa: E402
+import ultralytics.utils.nms as yolo_nms  # noqa: E402
 from ultralytics import YOLO  # noqa: E402
 from ultralytics import settings as yolo_settings  # noqa: E402
 
 yolo_settings.update({"weights_dir": str(settings.weights_dir), "sync": False})
 # YOLO-World's CLIP loader copied WEIGHTS_DIR at import time, before the update above.
 yolo_text_model.WEIGHTS_DIR = settings.weights_dir
+
+_ultralytics_nms_boxes = yolo_nms.nms_boxes
+
+
+def _nms_boxes(boxes, scores, iou, rotated=False):
+    # Ultralytics skips torchvision NMS on XPU and falls back to a Python loop of tiny GPU ops
+    # (~60 ms per call on Intel Arc vs ~3 ms for torchvision; results are identical).
+    if boxes.device.type == "xpu" and not rotated:
+        return torchvision.ops.nms(boxes, scores, iou)
+    return _ultralytics_nms_boxes(boxes, scores, iou, rotated)
+
+
+yolo_nms.nms_boxes = _nms_boxes
 
 DEVICE_CHOICES = ("auto", "cpu", "gpu")
 MAX_PROMPT_CLASSES = 20

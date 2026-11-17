@@ -25,21 +25,23 @@ def label_text(det: dict) -> str:
     return text
 
 
-def draw(frame: np.ndarray, detections: list[dict], masks: list[np.ndarray] | None = None) -> np.ndarray:
-    """Draws onto `frame` in place and returns it. `masks` are polygons aligned with `detections`."""
+def draw(frame: np.ndarray, detections: list[dict], masks: list[np.ndarray] | None = None,
+         scale: float = 1.0) -> np.ndarray:
+    """Draws onto `frame` in place and returns it. `masks` are polygons aligned with `detections`.
+    `scale` maps detection coordinates onto a resized frame (e.g. 0.5 for 4K detections on 1080p)."""
     height, width = frame.shape[:2]
-    scale = min(height, width) / 720  # sizes tuned on 720p, scaled for other resolutions
-    thickness = max(2, round(2 * scale))
-    font_scale = max(0.45, 0.6 * scale)
-    font_thickness = max(1, round(1.5 * scale))
-    pad = max(4, round(6 * scale))
+    size = min(height, width) / 720  # line/text sizes tuned on 720p, scaled for other resolutions
+    thickness = max(2, round(2 * size))
+    font_scale = max(0.45, 0.6 * size)
+    font_thickness = max(1, round(1.5 * size))
+    pad = max(4, round(6 * size))
 
     if masks:
         overlay = frame.copy()
         outlines = []
         for det, polygon in zip(detections, masks):
             if len(polygon):
-                points = polygon.astype(np.int32)
+                points = (polygon * scale).astype(np.int32)
                 color = _bgr(class_color(det["class_id"], det["class_name"]))
                 cv2.fillPoly(overlay, [points], color)
                 outlines.append((points, color))
@@ -51,7 +53,7 @@ def draw(frame: np.ndarray, detections: list[dict], masks: list[np.ndarray] | No
         hex_color = class_color(det["class_id"], det["class_name"])
         color = _bgr(hex_color)
         box = det["bbox"]
-        x1, y1, x2, y2 = box["x1"], box["y1"], box["x2"], box["y2"]
+        x1, y1, x2, y2 = (round(box[k] * scale) for k in ("x1", "y1", "x2", "y2"))
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness, cv2.LINE_AA)
 
         text = label_text(det)

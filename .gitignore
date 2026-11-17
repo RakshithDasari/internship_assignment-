@@ -6,6 +6,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Local test footage (large, third-party licensed)
+samples/
+
 # Runtime data & model weights (created by the app, never committed)
 data/
 weights/
