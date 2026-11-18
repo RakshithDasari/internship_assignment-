@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Glass surfaces. Jobs uses a darker variant (.screen-jobs). */
+@layer base {
+  body {
+    background-color: #0b0707;
+    background-image:
+      radial-gradient(circle at 50% 8%, rgba(158, 31, 31, 0.38) 0%, rgba(107, 30, 30, 0.22) 35%, transparent 65%),
+      radial-gradient(circle at 10% 85%, rgba(80, 125, 58, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 90% 90%, rgba(229, 57, 53, 0.15) 0%, transparent 45%),
+      linear-gradient(180deg, #0b0707 0%, #120a0a 50%, #0b0707 100%);
+    background-attachment: fixed;
+    color: #ffffff;
+  }
+
+  body:has(.screen-jobs) {
+    background-color: #070505;
+    background-image:
+      radial-gradient(circle at 50% 5%, rgba(158, 31, 31, 0.16) 0%, transparent 55%),
+      linear-gradient(180deg, #070505 0%, #0d0a0a 50%, #070505 100%);
+  }
+
+  /* Accessibility: a visible keyboard focus ring everywhere. */
+  :focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.7);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(229, 57, 53, 0.6); }
+}
+
+@layer components {
+  .icon {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    direction: ltr;
+    vertical-align: middle;
+    font-feature-settings: "liga";
+  }
+
+  .dark-glass-window {
+    background: rgba(18, 12, 12, 0.78);
+    backdrop-filter: blur(48px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 30px 80px -15px rgba(0, 0, 0, 0.95),
+      0 0 50px -10px rgba(158, 31, 31, 0.25),
+      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  .dark-glass-card {
+    background: rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.65), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .dark-glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 14px 40px -4px rgba(0, 0, 0, 0.8), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .model-card-active {
+    border: 2px solid #507d3a;
+    background: rgba(80, 125, 58, 0.12);
+    box-shadow: 0 0 20px rgba(80, 125, 58, 0.25);
+  }
+
+  .dark-segmented-active {
+    background: #e53935;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(229, 57, 53, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .screen-jobs .dark-glass-window {
+    background: rgba(14, 10, 10, 0.72);
+    backdrop-filter: blur(48px) saturate(180%);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .screen-jobs .dark-glass-card {
+    background: rgba(255, 255, 255, 0.035);
+    backdrop-filter: blur(28px) saturate(160%);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .screen-jobs .dark-glass-card:hover {
+    background: rgba(255, 255, 255, 0.065);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .dark-main-glass-box {
+    background: rgba(16, 12, 12, 0.82);
+    backdrop-filter: blur(40px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 24px 64px -12px rgba(0, 0, 0, 0.9),
+      0 0 40px -10px rgba(0, 0, 0, 0.8),
+      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.16);
+  }
+}
