@@ -1,5 +1,6 @@
 # NVIDIA GPU override (Docker Desktop on Windows/WSL2 supports this out of the box;
-# on Linux install the NVIDIA Container Toolkit):
+# on Linux install the NVIDIA Container Toolkit). torch 2.15 ships for CUDA 13.2, so the
+# NVIDIA driver must support CUDA 13.2+ (top-right of `nvidia-smi`).
 #   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
 # The worker runs inference on the GPU; the backend sees it too, so /health and the
 # Upload page report the GPU the worker will use. Both share the one card.
@@ -7,7 +8,7 @@
 x-gpu: &gpu
   build:
     args:
-      TORCH_INDEX_URL: https://download.pytorch.org/whl/cu128
+      TORCH_INDEX_URL: https://download.pytorch.org/whl/cu132
   deploy:
     resources:
       reservations:
