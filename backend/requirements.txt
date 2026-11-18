@@ -17,4 +17,5 @@ opencv-python==5.1.0.95
 pillow==13.0.0
 numpy==2.4.6
 lap==0.5.14  # ByteTrack dependency; ultralytics would otherwise install it at runtime
+pi-heif==1.4.0  # ultralytics patches PIL.Image.open to try HEIC on unrecognised files
 clip @ git+https://github.com/ultralytics/CLIP.git@7ffa84b3bfa40c42ecc1c77147a855e69cb2dd40  # YOLO-World

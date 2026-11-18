@@ -5,8 +5,10 @@ from functools import lru_cache
 from app.config import settings
 
 # Keep Ultralytics' settings file (download dir, telemetry flag) next to our weights
-# instead of the user profile. Must be set before ultralytics is imported.
+# instead of the user profile, and stop it pip-installing packages at runtime: every
+# dependency is pinned in requirements.txt. Must be set before ultralytics is imported.
 os.environ.setdefault("YOLO_CONFIG_DIR", str(settings.weights_dir / ".ultralytics"))
+os.environ.setdefault("YOLO_AUTOINSTALL", "false")
 
 import torch  # noqa: E402
 import torchvision  # noqa: E402
