@@ -1,3 +1,6 @@
+# Local environment values (the committed template is .env.example)
+.env
+
 # Python
 .venv/
 __pycache__/
