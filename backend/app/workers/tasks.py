@@ -1,21 +1,45 @@
+import base64
 import errno
+import json
 import logging
+import time
+
+import cv2
+import redis
 
 from app import db
 from app.config import settings
-from app.models import inference, registry
+from app.models import inference, media, registry
 from app.models.media import MediaError
 from app.workers.celery_app import celery_app
 
 log = logging.getLogger(__name__)
+
+LIVE_INTERVAL_S = 0.1  # at most ~10 live previews per second
+LIVE_PREVIEW_WIDTH = 480
+
+_live = redis.Redis.from_url(settings.redis_url, socket_timeout=1)  # connects lazily
 
 
 class ModelLoadError(Exception):
     """Kept separate from RuntimeError so a broken model isn't mistaken for a GPU fault."""
 
 
+def live_channel(job_id: str) -> str:
+    return f"job:{job_id}"
+
+
+def publish_live(job_id: str, event: dict) -> None:
+    # Best effort: the live view is a bonus on top of polling, so a Redis hiccup must not fail the job.
+    try:
+        _live.publish(live_channel(job_id), json.dumps(event))
+    except redis.RedisError:
+        log.debug("job=%s event=live-publish-failed", job_id)
+
+
 def _fail(job_id: str, code: str, message: str) -> None:
     db.update_job(job_id, status="failed", error_code=code, error=message, completed_at=db.now())
+    publish_live(job_id, {"type": "status", "status": "failed", "error_code": code, "error": message})
     log.warning("job=%s event=failed code=%s", job_id, code)
 
 
@@ -37,6 +61,7 @@ def process_job(job_id: str) -> None:
         log.info("job=%s event=skipped reason=no-longer-queued", job_id)  # cancelled first
         return
     log.info("job=%s event=started model=%s device=%s", job_id, job["model"], device)
+    publish_live(job_id, {"type": "status", "status": "processing", "device": device})
 
     prompt = registry.parse_prompt(job["prompt"]) if registry.get_spec(job["model"]).needs_prompt else None
 
@@ -54,6 +79,24 @@ def process_job(job_id: str) -> None:
             fields["frame_count"] = expected  # estimate shown while processing; replaced on completion
         db.update_job(job_id, **fields)
 
+    last_live = 0.0
+
+    def on_frame(index: int, frame, record: dict, expected: int) -> None:
+        nonlocal last_live
+        now = time.monotonic()
+        is_last = expected and index + 1 >= expected
+        if now - last_live < LIVE_INTERVAL_S and not is_last:
+            return
+        last_live = now
+        ok, jpeg = cv2.imencode(".jpg", media.thumbnail(frame, LIVE_PREVIEW_WIDTH), [cv2.IMWRITE_JPEG_QUALITY, 70])
+        publish_live(job_id, {
+            "type": "frame",
+            **{k: v for k, v in record.items() if k != "model"},
+            "frames_done": index + 1,
+            "frame_count": expected or None,
+            "preview": base64.b64encode(jpeg.tobytes()).decode() if ok else None,
+        })
+
     try:
         summary = inference.process_media(
             job["media_type"],
@@ -64,6 +107,7 @@ def process_job(job_id: str) -> None:
             device,
             job["conf"],
             on_progress,
+            on_frame,
         )
     except MediaError as exc:
         _fail(job_id, exc.code, str(exc))
@@ -95,4 +139,5 @@ def process_job(job_id: str) -> None:
             warnings=summary["warnings"],
             completed_at=db.now(),
         )
+        publish_live(job_id, {"type": "status", "status": "completed"})
         log.info("job=%s event=completed device=%s warnings=%d", job_id, summary["device"], len(summary["warnings"]))

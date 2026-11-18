@@ -1,3 +1,4 @@
+import contextlib
 import hashlib
 import json
 import logging
@@ -9,9 +10,11 @@ from dataclasses import asdict
 from pathlib import Path
 
 import redis
-from fastapi import APIRouter, FastAPI, File, Form, Request, UploadFile
+import redis.asyncio as aioredis
+from fastapi import APIRouter, FastAPI, File, Form, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
+from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import db
@@ -19,7 +22,7 @@ from app.config import settings
 from app.models import registry
 from app.models.media import detect_media_type, find_ffmpeg
 from app.workers.celery_app import celery_app
-from app.workers.tasks import process_job
+from app.workers.tasks import live_channel, process_job
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -30,6 +33,8 @@ CHUNK_BYTES = 1024 * 1024
 MULTIPART_OVERHEAD_BYTES = 1024 * 1024
 HEALTH_CACHE_S = 5.0
 PROMPT_CODES = {"PROMPT_REQUIRED", "PROMPT_INVALID"}
+TERMINAL_STATUSES = {"completed", "failed", "cancelled"}
+LIVE_RECHECK_S = 5.0
 
 
 class ApiError(Exception):
@@ -269,6 +274,61 @@ def delete_job(job_id: str):
     _remove_job_files(job_id)
     log.info("job=%s event=deleted", job_id)
     return Response(status_code=204)
+
+
+# --- live stream ---------------------------------------------------------------------------------
+
+def _snapshot(job_id: str) -> dict | None:
+    job = db.get_job(job_id)
+    return _public(job, db.has_same_file(job_id, job["sha256"])) if job else None
+
+
+@router.websocket("/ws/jobs/{job_id}")
+async def job_stream(websocket: WebSocket, job_id: str):
+    """Current job state, then live frames and status changes until the job ends.
+
+    Subscribing happens before the snapshot is read, so no event can fall between them.
+    Every quiet LIVE_RECHECK_S a fresh snapshot is sent: it refreshes queue position,
+    notices a vanished client, and ends the stream if a final event was missed.
+    """
+    # Browsers don't apply CORS to WebSockets, so check the origin here.
+    origin = websocket.headers.get("origin")
+    if origin and origin not in settings.cors_origins:
+        await websocket.close(code=1008)
+        return
+    if not JOB_ID.match(job_id) or await run_in_threadpool(db.get_job, job_id) is None:
+        await websocket.close(code=4404)
+        return
+
+    await websocket.accept()
+    client = aioredis.Redis.from_url(settings.redis_url)
+    pubsub = client.pubsub()
+    try:
+        await pubsub.subscribe(live_channel(job_id))
+        snapshot = await run_in_threadpool(_snapshot, job_id)
+        await websocket.send_json({"type": "snapshot", "job": snapshot})
+        quiet_since = time.monotonic()
+        while snapshot and snapshot["status"] not in TERMINAL_STATUSES:
+            message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
+            if message:
+                quiet_since = time.monotonic()
+                await websocket.send_text(message["data"].decode())
+                event = json.loads(message["data"])
+                if event.get("type") == "status" and event.get("status") in TERMINAL_STATUSES:
+                    break
+            elif time.monotonic() - quiet_since >= LIVE_RECHECK_S:
+                quiet_since = time.monotonic()
+                snapshot = await run_in_threadpool(_snapshot, job_id)
+                await websocket.send_json({"type": "snapshot", "job": snapshot})
+    except WebSocketDisconnect:
+        pass
+    except redis.RedisError:
+        log.warning("job=%s event=live-stream-redis-error", job_id)
+    finally:
+        await pubsub.aclose()
+        await client.aclose()
+        with contextlib.suppress(RuntimeError):  # already closed by the client
+            await websocket.close()
 
 
 # --- models & health -----------------------------------------------------------------------------

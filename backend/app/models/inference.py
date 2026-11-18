@@ -21,6 +21,7 @@ EARLY_END_RATIO = 0.9
 log = logging.getLogger(__name__)
 
 ProgressCallback = Callable[[int, int], None]  # (frames_done, frames_expected)
+FrameCallback = Callable[[int, "np.ndarray", dict, int], None]  # (index, annotated frame, record, frames_expected)
 
 
 def _detections(result, width: int, height: int) -> tuple[list[dict], list | None]:
@@ -91,7 +92,7 @@ def _offer_keyframe(kept: list, index: int, objects: int, frame, gap: int) -> li
     return kept
 
 
-def _run_image(input_path, work_dir, model, model_id, device, conf, on_progress) -> dict:
+def _run_image(input_path, work_dir, model, model_id, device, conf, on_progress, on_frame) -> dict:
     frame = media.read_image(input_path)
     height, width = frame.shape[:2]
     result = model.predict(frame, conf=conf, device=device, verbose=False)[0]
@@ -99,6 +100,8 @@ def _run_image(input_path, work_dir, model, model_id, device, conf, on_progress)
     annotate.draw(frame, detections, masks)
     media.write_image(work_dir / "output.jpg", frame)
     frames = [_frame_record(0, 0, model_id, result, detections)]
+    if on_frame:
+        on_frame(0, frame, frames[0], 1)
     if on_progress:
         on_progress(1, 1)
     return {
@@ -109,7 +112,7 @@ def _run_image(input_path, work_dir, model, model_id, device, conf, on_progress)
     }
 
 
-def _run_video(input_path, work_dir, model, model_id, device, conf, on_progress) -> dict:
+def _run_video(input_path, work_dir, model, model_id, device, conf, on_progress, on_frame) -> dict:
     frames: list[dict] = []
     kept: list = []
     warnings: list[str] = []
@@ -131,6 +134,8 @@ def _run_video(input_path, work_dir, model, model_id, device, conf, on_progress)
                     frame = cv2.resize(frame, (out_w, out_h), interpolation=cv2.INTER_AREA)
                 annotate.draw(frame, detections, masks, scale)
                 writer.write(frame)
+                if on_frame:
+                    on_frame(index, frame, frames[-1], info.frame_count)
 
                 kept = _offer_keyframe(kept, index, len(detections), frame, gap)
 
@@ -174,9 +179,11 @@ def process_media(
     device: str,
     conf: float,
     on_progress: ProgressCallback | None = None,
+    on_frame: FrameCallback | None = None,
 ) -> dict:
     """Runs a model over an image or video and writes output, metadata.json and thumbnails
-    to `out_dir`. Returns metadata without the per-frame list.
+    to `out_dir`. Returns metadata without the per-frame list. `on_frame` receives every
+    annotated frame as it's produced (used for live streaming).
 
     Work happens in a sibling `.tmp` folder that replaces `out_dir` only on success, so a
     partially processed job never looks complete. A GPU RuntimeError (driver fault, out of
@@ -191,7 +198,7 @@ def process_media(
             shutil.rmtree(work_dir, ignore_errors=True)
             work_dir.mkdir(parents=True)
             try:
-                metadata = run(input_path, work_dir, load_model(), model_id, used_device, conf, on_progress)
+                metadata = run(input_path, work_dir, load_model(), model_id, used_device, conf, on_progress, on_frame)
                 break
             except RuntimeError as exc:
                 if used_device == "cpu":
