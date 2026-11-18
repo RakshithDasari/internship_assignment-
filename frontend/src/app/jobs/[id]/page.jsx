@@ -5,12 +5,10 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import ErrorBanner from "@/components/ErrorBanner";
-import { HealthChip } from "@/components/Header";
 import ImageDashboard from "@/components/ImageDashboard";
 import JobProgress from "@/components/upload/JobProgress";
 import VideoDashboard from "@/components/VideoDashboard";
 import { getMetadata } from "@/lib/api";
-import { deviceLabel } from "@/lib/format";
 import { useJob } from "@/lib/hooks";
 
 export default function JobPage() {
@@ -30,14 +28,8 @@ function JobView({ jobId }) {
     getMetadata(jobId).then(setMetadata).catch(setMetadataError);
   }, [completed, jobId]);
 
-  const chip = job && (
-    <HealthChip>
-      Model: {job.model} • {job.media_type === "image" ? "Still Image" : `${deviceLabel(job.device)} Host`}
-    </HealthChip>
-  );
-
   return (
-    <AppShell chip={chip}>
+    <AppShell>
       {metadata && job.media_type === "video" && <VideoDashboard job={job} metadata={metadata} />}
       {metadata && job.media_type === "image" && <ImageDashboard job={job} metadata={metadata} />}
       {!metadata && (

@@ -14,8 +14,8 @@ module.exports = {
       },
       fontFamily: {
         // next/font exposes the self-hosted fonts as CSS variables (see app/layout.jsx).
-        headline: ["var(--font-bebas)", "Inter", "-apple-system", "sans-serif"],
-        body: ["var(--font-inter)", "-apple-system", "sans-serif"],
+        headline: ["var(--font-bebas)", "var(--font-sans)", "-apple-system", "sans-serif"],
+        body: ["var(--font-sans)", "-apple-system", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },
       borderRadius: {

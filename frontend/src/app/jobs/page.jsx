@@ -11,7 +11,7 @@ import { usePolling } from "@/lib/hooks";
 const POLL_MS = 4_000;
 const PAGE_SIZE = 20;
 const STATUSES = ["queued", "processing", "completed", "failed", "cancelled"];
-const COLUMNS = ["Job ID", "Filename & Type", "Model Variant", "Device", "Status", "Frames / Duration", "Created", "Actions"];
+const COLUMNS = ["File", "Model", "Status", "Length", "Created"];
 
 export default function JobsPage() {
   const { data: jobs, error, refresh } = usePolling(listJobs, POLL_MS);
@@ -57,19 +57,18 @@ export default function JobsPage() {
 
   return (
     <AppShell className="screen-jobs">
-      <main className="flex flex-1 items-center justify-center overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <div className="dark-main-glass-box my-auto flex w-full max-w-6xl flex-col gap-6 rounded-[26px] p-6 shadow-2xl sm:p-8">
-          <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-2 sm:flex-row sm:items-center">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight">
-                <span className="icon text-[24px] text-white/80" aria-hidden="true">list_alt</span>
-                Jobs History
+              <h1 className="text-3xl">
+                <span className="font-light text-white/80">Jobs</span> <span className="font-bold">History</span>
               </h1>
-              <p className="mt-1 text-xs text-white/60">Asynchronous inference jobs, newest first.</p>
+              <p className="mt-1 text-sm text-white/60">Every inference job, newest first.</p>
             </div>
-            <Link href="/upload" className="flex items-center gap-1.5 self-start rounded-full border border-white/20 bg-white px-5 py-2 text-xs font-bold text-black shadow-md transition hover:bg-white/90 sm:self-auto">
-              <span className="icon text-[16px]" aria-hidden="true">cloud_upload</span>
-              Upload
+            <Link href="/upload" className="flex items-center gap-1.5 self-start rounded-full bg-white px-5 py-2 text-xs font-bold text-black transition hover:bg-white/90 active:scale-[0.97] sm:self-auto">
+              <span className="icon text-[16px]" aria-hidden="true">add</span>
+              New upload
             </Link>
           </div>
 
@@ -83,38 +82,54 @@ export default function JobsPage() {
           {error && <ErrorBanner title="Can't load jobs." detail={error.message} />}
           {actionError && <ErrorBanner title={actionError} onDismiss={() => setActionError(null)} />}
 
-          <div className="dark-glass-card flex flex-col overflow-hidden rounded-[22px] border border-white/10 shadow-xl">
-            <div className="flex flex-col items-center justify-between gap-3 border-b border-white/10 bg-black/40 p-3.5 sm:flex-row">
-              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                <div className="relative w-full sm:w-64">
-                  <span className="icon absolute left-3 top-2 text-[17px] text-white/60" aria-hidden="true">search</span>
+          <div className="flex flex-col overflow-hidden rounded-[22px] border border-white/10 bg-black/40 backdrop-blur-2xl">
+            <div className="flex flex-col-reverse gap-3 border-b border-white/10 p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
+                {["all", ...STATUSES].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={status === value}
+                    onClick={() => {
+                      setStatus(value);
+                      setPage(0);
+                    }}
+                    className={`pill px-3.5 py-1 text-xs ${status === value ? "pill-active" : ""}`}
+                  >
+                    {value === "all" ? "All" : value[0].toUpperCase() + value.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 lg:w-60 lg:flex-none">
+                  <span className="icon absolute left-3 top-2 text-[17px] text-white/50" aria-hidden="true">search</span>
                   <input
                     type="search"
                     value={query}
                     onChange={filterBy(setQuery)}
-                    placeholder="Search by Job ID or file..."
-                    aria-label="Search jobs by ID or file name"
-                    className="w-full rounded-full border border-white/15 bg-black/50 py-1.5 pl-9 pr-3 font-mono text-xs shadow-inner placeholder:text-white/40"
+                    placeholder="Search files or job IDs"
+                    aria-label="Search jobs by file name or ID"
+                    className="w-full rounded-full border border-white/12 bg-black/40 py-1.5 pl-9 pr-3 text-xs placeholder:text-white/40"
                   />
                 </div>
-                <Select label="Filter by status" value={status} onChange={filterBy(setStatus)}
-                  options={[["all", "All Statuses"], ...STATUSES.map((s) => [s, s[0].toUpperCase() + s.slice(1)])]} />
-                <Select label="Filter by model" value={model} onChange={filterBy(setModel)}
-                  options={[["all", "All Models"], ...models.map((m) => [m, m])]} />
+                <select aria-label="Filter by model" value={model} onChange={filterBy(setModel)}
+                  className="rounded-full border border-white/12 bg-black/40 px-3 py-1.5 text-xs">
+                  <option value="all">All models</option>
+                  {models.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
               </div>
-              <p className="flex items-center gap-2 font-mono text-xs text-white/60">
-                Poll interval:
-                <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 font-bold text-white/80">{POLL_MS / 1000}s</span>
-              </p>
             </div>
 
-            <div className="overflow-x-auto bg-black/30">
+            <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-xs">
                 <thead>
-                  <tr className="h-11 border-b border-white/10 bg-white/[0.02] font-mono uppercase tracking-wider text-white/60">
+                  <tr className="border-b border-white/10 text-white/50">
                     {COLUMNS.map((column) => (
-                      <th key={column} scope="col" className={`px-4 py-2.5 font-normal ${column === "Actions" ? "text-right" : ""}`}>{column}</th>
+                      <th key={column} scope="col" className="px-4 py-3 font-medium">{column}</th>
                     ))}
+                    <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
@@ -134,15 +149,15 @@ export default function JobsPage() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between border-t border-white/10 bg-black/40 p-3.5 text-xs text-white/60">
-              <span>Showing {visible.length} {visible.length === 1 ? "job" : "jobs"}</span>
-              <nav aria-label="Pagination" className="flex items-center gap-1.5">
-                <PageButton icon="chevron_left" label="Previous page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} />
-                <span aria-current="page" className="flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-white/20 font-mono font-bold text-white">
-                  {currentPage + 1}
-                </span>
-                <PageButton icon="chevron_right" label="Next page" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)} />
-              </nav>
+            <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-xs text-white/50">
+              <span>{visible.length} {visible.length === 1 ? "job" : "jobs"}</span>
+              {pageCount > 1 && (
+                <nav aria-label="Pagination" className="flex items-center gap-2">
+                  <PageButton icon="chevron_left" label="Previous page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} />
+                  <span aria-current="page">Page {currentPage + 1} of {pageCount}</span>
+                  <PageButton icon="chevron_right" label="Next page" disabled={currentPage >= pageCount - 1} onClick={() => setPage(currentPage + 1)} />
+                </nav>
+              )}
             </div>
           </div>
         </div>
@@ -155,26 +170,14 @@ function Stat({ label, value, className = "" }) {
   return (
     <div className="dark-glass-card flex flex-col rounded-2xl p-4">
       <dt className="text-xs font-medium text-white/60">{label}</dt>
-      <dd className={`mt-1 font-mono text-2xl font-bold ${className}`}>{value}</dd>
+      <dd className={`mt-1 text-2xl font-bold ${className}`}>{value}</dd>
     </div>
-  );
-}
-
-function Select({ label, value, onChange, options }) {
-  return (
-    <select aria-label={label} value={value} onChange={onChange}
-      className="rounded-full border border-white/15 bg-black/50 px-3 py-1.5 text-xs font-medium shadow-sm">
-      {options.map(([optionValue, text]) => (
-        <option key={optionValue} value={optionValue}>{text}</option>
-      ))}
-    </select>
   );
 }
 
 function PageButton({ icon, label, disabled, onClick }) {
   return (
-    <button type="button" aria-label={label} disabled={disabled} onClick={onClick}
-      className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white shadow-sm transition hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30">
+    <button type="button" aria-label={label} disabled={disabled} onClick={onClick} className="icon-btn h-8 w-8">
       <span className="icon text-[16px]" aria-hidden="true">{icon}</span>
     </button>
   );
@@ -183,7 +186,7 @@ function PageButton({ icon, label, disabled, onClick }) {
 function EmptyRow() {
   return (
     <tr>
-      <td colSpan={8} className="py-12 text-center">
+      <td colSpan={6} className="py-12 text-center">
         <div className="flex flex-col items-center gap-2">
           <span className="icon text-[36px] text-white/30" aria-hidden="true">inbox</span>
           <p className="text-sm font-semibold text-white/80">No inference jobs found</p>

@@ -1,0 +1,22 @@
+/** Decorative hatch, halftone and bounding-box line art from the intro (purely visual). */
+export default function InkIllustration({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 1400 600" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="hatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#000" strokeWidth="1.8" />
+        </pattern>
+        <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.8" fill="#220505" />
+        </pattern>
+      </defs>
+      <path d="M 0,0 L 450,0 L 320,380 L 120,600 L 0,600 Z" fill="url(#hatch)" opacity="0.65" />
+      <path d="M 1400,0 L 980,0 L 1100,320 L 1320,600 L 1400,600 Z" fill="url(#hatch)" opacity="0.55" />
+      <circle cx="240" cy="180" r="140" fill="none" stroke="#220505" strokeWidth="14" opacity="0.4" />
+      <circle cx="1180" cy="380" r="160" fill="none" stroke="#220505" strokeWidth="16" opacity="0.4" />
+      <rect x="380" y="40" width="640" height="520" fill="url(#dots)" opacity="0.3" />
+      <rect x="180" y="90" width="190" height="280" fill="none" stroke="#fff" strokeWidth="2" strokeDasharray="6,4" opacity="0.5" />
+      <rect x="750" y="110" width="380" height="420" fill="none" stroke="#fff" strokeWidth="2" strokeDasharray="8,6" opacity="0.4" />
+    </svg>
+  );
+}

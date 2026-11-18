@@ -18,7 +18,7 @@ export default function ErrorBanner({ title, detail, onRetry, onDismiss }) {
         </button>
       )}
       {onDismiss && (
-        <button type="button" onClick={onDismiss} aria-label="Dismiss error" className="shrink-0 text-white/60 hover:text-white">
+        <button type="button" onClick={onDismiss} aria-label="Dismiss error" className="icon-btn h-7 w-7">
           <span className="icon text-[16px]" aria-hidden="true">close</span>
         </button>
       )}

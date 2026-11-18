@@ -1,8 +1,8 @@
-import { Bebas_Neue, Inter, JetBrains_Mono } from "next/font/google";
+import { Bebas_Neue, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 // Downloaded at build time and served by Next itself: no runtime font requests, no layout shift.
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
@@ -16,7 +16,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${bebas.variable} ${mono.variable}`}>
+    <html lang="en" className={`dark ${sans.variable} ${bebas.variable} ${mono.variable}`}>
       <head>
         {/* The icon font isn't available through next/font, so it's linked directly. */}
         <link rel="stylesheet" href={ICON_FONT} />

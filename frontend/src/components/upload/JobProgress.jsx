@@ -55,10 +55,10 @@ export default function JobProgress({ upload, job, frame }) {
           </span>
           {view.title}
         </h2>
-        <span className="font-mono font-bold">{view.value}</span>
+        <span className="font-bold">{view.value}</span>
       </div>
 
-      <ol className="grid grid-cols-4 gap-2 text-center font-mono text-[11px]">
+      <ol className="grid grid-cols-4 gap-2 text-center text-[11px]">
         {STAGES.map((label, index) => (
           <li key={label} className={`rounded py-1 ${pillClass(index, view)}`}>{label}</li>
         ))}
@@ -76,7 +76,7 @@ export default function JobProgress({ upload, job, frame }) {
             alt={`Live annotated frame ${frame.frame_index}`}
             className="aspect-video w-full rounded-xl border border-white/15 object-contain sm:w-2/3"
           />
-          <dl className="flex flex-row gap-4 font-mono text-xs sm:flex-col">
+          <dl className="flex flex-row gap-4 text-xs sm:flex-col">
             <div>
               <dt className="text-white/60">Objects</dt>
               <dd className="text-xl font-bold">{frame.total_objects}</dd>
@@ -95,15 +95,18 @@ export default function JobProgress({ upload, job, frame }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between font-mono text-xs text-white/60">
+      <div className="flex items-center justify-between text-xs text-white/60">
         <span>{job ? `Job: ${shortId(job.job_id)}` : "Job: pending"}</span>
         <span>{view.detail}</span>
       </div>
 
       {view.done && (
-        <div className="flex justify-end border-t border-white/10 pt-2">
+        <div className="flex items-center justify-end gap-4 border-t border-white/10 pt-2">
+          <Link href="/jobs" className="text-link">
+            View in Jobs <span className="icon text-[14px]" aria-hidden="true">arrow_forward</span>
+          </Link>
           <Link href={`/jobs/${job.job_id}`}
-            className="flex items-center gap-1.5 rounded-full bg-success-glow px-5 py-2 text-xs font-bold shadow-[0_0_15px_rgba(80,125,58,0.4)] hover:bg-success">
+            className="flex items-center gap-1.5 rounded-full bg-success-glow px-5 py-2 text-xs font-bold hover:bg-success">
             Open dashboard
             <span className="icon text-[16px]" aria-hidden="true">arrow_forward</span>
           </Link>

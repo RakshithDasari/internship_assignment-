@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import ErrorBanner from "@/components/ErrorBanner";
-import { HealthChip } from "@/components/Header";
 import Dropzone from "@/components/upload/Dropzone";
 import InferenceSettings from "@/components/upload/InferenceSettings";
 import JobProgress from "@/components/upload/JobProgress";
@@ -126,90 +125,86 @@ function UploadScreen() {
   }, []);
 
   return (
-    <AppShell chip={<HealthChip>{health ? `${health.max_file_size_mb}MB max` : null}</HealthChip>}>
-      <main className="flex flex-1 items-center justify-center overflow-y-auto bg-black/25 p-4 backdrop-blur-md sm:p-6">
-        <form onSubmit={submit} className="dark-glass-card my-auto flex w-full max-w-4xl flex-col gap-5 rounded-[24px] border border-white/15 p-6 shadow-2xl sm:p-8">
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
-            <div>
-              <h1 className="flex items-center gap-2 text-xl font-bold">
-                <span className="icon text-[24px] text-scarlet" aria-hidden="true">tune</span>
-                Upload Media &amp; Configure Inference
-              </h1>
-              <p className="mt-1 text-xs text-white/60">
-                Upload a video or image, select a model architecture, and set the confidence threshold.
-              </p>
-            </div>
-            <span className="hidden shrink-0 rounded-full border border-white/15 bg-white/10 px-3 py-1 font-mono text-xs font-medium text-white/80 sm:inline">
-              Async Queue: Redis + Celery
-            </span>
+    <AppShell>
+      <main className="flex flex-1 items-center p-4 sm:p-6 lg:p-8">
+        <form onSubmit={submit} className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+          <div>
+            <h1 className="text-3xl">
+              <span className="font-light text-white/80">Upload</span> <span className="font-bold">Media</span>
+            </h1>
+            <p className="mt-1 text-sm text-white/60">Drop a file, pick a model, and watch it get analysed live.</p>
           </div>
 
-          <Dropzone
-            file={file}
-            accept={allowed?.map((ext) => `.${ext}`).join(",")}
-            maxMb={health?.max_file_size_mb}
-            disabled={busy}
-            onSelect={chooseFile}
-          />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="flex flex-col gap-4 lg:col-span-7">
+              <Dropzone
+                file={file}
+                accept={allowed?.map((ext) => `.${ext}`).join(",")}
+                maxMb={health?.max_file_size_mb}
+                disabled={busy}
+                onSelect={chooseFile}
+              />
+              {error && (
+                <ErrorBanner
+                  title={error.title}
+                  detail={error.detail}
+                  onRetry={error.retry ? submit : undefined}
+                  onDismiss={error.retry ? undefined : () => setError(null)}
+                />
+              )}
+              {(upload || job) && <JobProgress upload={upload} job={job} frame={frame} />}
+            </div>
 
-          {error && (
-            <ErrorBanner
-              title={error.title}
-              detail={error.detail}
-              onRetry={error.retry ? submit : undefined}
-              onDismiss={error.retry ? undefined : () => setError(null)}
-            />
-          )}
+            <div className="flex flex-col gap-5 rounded-[22px] border border-white/10 bg-black/40 p-5 backdrop-blur-2xl lg:col-span-5">
+              {models ? (
+                <ModelPicker
+                  models={models.models}
+                  defaultModel={models.default_model}
+                  selected={selectedModel}
+                  onSelect={(id) => {
+                    setModel(id);
+                    setPromptError(null);
+                  }}
+                  prompt={prompt}
+                  onPrompt={setPrompt}
+                  promptError={promptError}
+                  disabled={busy}
+                />
+              ) : (
+                <p className="text-xs text-white/60">Loading models…</p>
+              )}
 
-          {models ? (
-            <ModelPicker
-              models={models.models}
-              defaultModel={models.default_model}
-              selected={selectedModel}
-              onSelect={(id) => {
-                setModel(id);
-                setPromptError(null);
-              }}
-              prompt={prompt}
-              onPrompt={setPrompt}
-              promptError={promptError}
-              disabled={busy}
-            />
-          ) : (
-            <p className="text-xs text-white/60">Loading models…</p>
-          )}
+              <InferenceSettings
+                confidence={threshold}
+                onConfidence={setConfidence}
+                device={device}
+                onDevice={setDevice}
+                gpu={{ available: Boolean(models?.devices.gpu), name: models?.devices.gpu_name }}
+                disabled={busy}
+              />
 
-          <InferenceSettings
-            confidence={threshold}
-            onConfidence={setConfidence}
-            device={device}
-            onDevice={setDevice}
-            gpu={{ available: Boolean(models?.devices.gpu), name: models?.devices.gpu_name }}
-            disabled={busy}
-          />
-
-          {(upload || job) && <JobProgress upload={upload} job={job} frame={frame} />}
-
-          <div className="flex items-center justify-between border-t border-white/10 pt-3">
-            <span className="text-xs text-white/60">Press [Enter] to submit</span>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={cancel}
-                disabled={job?.status === "processing"}
-                title={job?.status === "processing" ? "Running jobs can't be cancelled" : undefined}
-                className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium transition hover:bg-white/20 disabled:opacity-40"
-              >
-                {busy ? "Cancel" : "Reset"}
-              </button>
-              <button
-                type="submit"
-                disabled={!file || busy || !spec}
-                className="flex items-center gap-2 rounded-full border border-white/20 bg-scarlet px-6 py-2 text-xs font-bold shadow-[0_0_20px_rgba(229,57,53,0.4)] transition hover:bg-scarlet-dark disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <span className="icon text-[17px]" aria-hidden="true">rocket_launch</span>
-                Run inference
-              </button>
+              <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
+                <button
+                  type="submit"
+                  disabled={!file || busy || !spec}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-scarlet py-3 text-sm font-bold transition hover:bg-scarlet-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="icon text-[18px]" aria-hidden="true">rocket_launch</span>
+                  Run inference
+                </button>
+                <div className="flex items-center justify-between text-xs text-white/60">
+                  <span>or press Enter</span>
+                  <button
+                    type="button"
+                    onClick={cancel}
+                    disabled={job?.status === "processing"}
+                    title={job?.status === "processing" ? "Running jobs can't be cancelled" : undefined}
+                    className="font-medium hover:text-white disabled:opacity-40"
+                  >
+                    {busy ? "Cancel" : "Reset"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </form>

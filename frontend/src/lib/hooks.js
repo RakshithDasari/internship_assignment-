@@ -41,14 +41,14 @@ export function usePolling(load, intervalMs, enabled = true) {
   return { ...state, refresh: () => setRefreshes((n) => n + 1) };
 }
 
-/** Live backend status for the header chip: { label, healthy, health }. */
+/** Backend status for the header: { label, detail, healthy, health }. */
 export function useHealth() {
   const { data, error } = usePolling(getHealth, HEALTH_INTERVAL_MS);
-  if (error) return { label: "API offline", healthy: false, health: null };
-  if (!data) return { label: "Checking…", healthy: false, health: null };
-  if (data.redis !== "ok") return { label: "Redis offline", healthy: false, health: data };
-  if (data.worker !== "ok") return { label: "Worker offline", healthy: false, health: data };
-  return { label: "Redis / Celery Active", healthy: true, health: data };
+  if (error) return { label: "API offline", detail: "The API isn't responding.", healthy: false, health: null };
+  if (!data) return { label: "Checking…", detail: "Checking backend status.", healthy: false, health: null };
+  if (data.redis !== "ok") return { label: "Redis offline", detail: "The job queue (Redis) is down.", healthy: false, health: data };
+  if (data.worker !== "ok") return { label: "Worker offline", detail: "No Celery worker is running.", healthy: false, health: data };
+  return { label: "Live", detail: "API, Redis and the Celery worker are running.", healthy: true, health: data };
 }
 
 /**

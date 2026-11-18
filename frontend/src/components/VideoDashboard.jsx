@@ -14,6 +14,7 @@ export default function VideoDashboard({ job, metadata }) {
   const stage = useRef(null);
   const [frameIndex, setFrameIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [started, setStarted] = useState(false); // the big play button only shows before the first play
   const [speed, setSpeed] = useState(1);
 
   const { fps, frames, keyframes } = metadata;
@@ -86,10 +87,10 @@ export default function VideoDashboard({ job, metadata }) {
         <FileBar
           job={job}
           outputLabel="video"
-          summary={`(${frames.length} frames • ${fps.toFixed(1)} fps • ${formatSeconds(metadata.duration_ms)})`}
+          summary={`${frames.length} frames · ${fps.toFixed(1)} fps · ${formatSeconds(metadata.duration_ms)}`}
         />
 
-        <div ref={stage} className="dark-glass-card group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-[20px] border border-white/15 shadow-2xl">
+        <div ref={stage} className="group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl">
           <video
             ref={video}
             src={resultUrl(job.job_id)}
@@ -97,26 +98,23 @@ export default function VideoDashboard({ job, metadata }) {
             playsInline
             aria-label={`Annotated video of ${job.filename}`}
             onClick={togglePlay}
-            onPlay={() => setPlaying(true)}
+            onPlay={() => {
+              setPlaying(true);
+              setStarted(true);
+            }}
             onPause={() => setPlaying(false)}
             onTimeUpdate={(event) => syncTo(event.currentTarget.currentTime)}
             onSeeked={(event) => syncTo(event.currentTarget.currentTime)}
-            className="h-full w-full bg-black object-contain"
+            className="h-full w-full object-contain"
           />
-          <div className="absolute left-4 top-4 flex items-center gap-2.5 rounded-full border border-white/25 bg-black/80 px-3 py-1.5 font-mono text-xs shadow-xl backdrop-blur-2xl">
-            <span className="h-2 w-2 rounded-full bg-success-glow shadow-[0_0_8px_#507D3A]" />
-            <span className="font-bold">Synced</span>
-            <span className="text-white/40" aria-hidden="true">|</span>
-            <span className="text-white/80">{record.inference_time_ms}ms</span>
-          </div>
-          {!playing && (
+          {!started && (
             <button
               type="button"
               onClick={togglePlay}
               aria-label="Play"
-              className="absolute flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-black/60 shadow-2xl backdrop-blur-2xl transition-transform hover:bg-scarlet/80 group-hover:scale-105"
+              className="absolute flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/50 backdrop-blur-xl transition hover:bg-scarlet/80 group-hover:scale-105"
             >
-              <span className="icon ml-0.5 text-[34px]" aria-hidden="true">play_arrow</span>
+              <span className="icon ml-0.5 text-[30px]" aria-hidden="true">play_arrow</span>
             </button>
           )}
         </div>
@@ -143,15 +141,15 @@ export default function VideoDashboard({ job, metadata }) {
               <button
                 type="button"
                 onClick={togglePlay}
-                className="flex items-center gap-1.5 rounded-full border border-white/20 bg-scarlet px-4 py-1.5 text-xs font-bold shadow-[0_0_15px_rgba(229,57,53,0.4)] transition hover:bg-scarlet-dark"
+                className="flex items-center gap-1.5 rounded-full border border-white/20 bg-scarlet px-4 py-1.5 text-xs font-bold transition hover:bg-scarlet-dark active:scale-[0.97]"
               >
                 <span className="icon text-[18px]" aria-hidden="true">{playing ? "pause" : "play_arrow"}</span>
                 {playing ? "Pause [Space]" : "Play [Space]"}
               </button>
               <IconButton icon="skip_next" label="Next frame (Right arrow)" onClick={() => step(1)} />
               <span className="mx-1 h-4 w-px bg-white/20" aria-hidden="true" />
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 font-mono text-xs shadow-sm">
-                <span className="text-white/60">Frame</span> <span className="font-bold">{record.frame_index}</span> / {lastFrame}
+              <span className="text-xs text-white/60">
+                Frame <span className="font-semibold text-white">{record.frame_index}</span> / {lastFrame}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -160,7 +158,7 @@ export default function VideoDashboard({ job, metadata }) {
                 <select
                   value={speed}
                   onChange={(event) => changeSpeed(Number(event.target.value))}
-                  className="rounded-lg border border-white/15 bg-black/60 px-2 py-0.5 font-mono text-xs text-white shadow-sm"
+                  className="rounded-lg border border-white/15 bg-black/60 px-2 py-0.5 text-xs text-white shadow-sm"
                 >
                   {SPEEDS.map((value) => (
                     <option key={value} value={value}>{value.toFixed(value < 1 ? 2 : 1)}x</option>
@@ -176,14 +174,11 @@ export default function VideoDashboard({ job, metadata }) {
       </section>
 
       <Telemetry
-        title="Live Telemetry"
+        title={["Live", "Telemetry"]}
         badge="Synced"
-        subtitle="Frame-synchronous metadata stream"
         jobId={job.job_id}
         record={record}
         colors={metadata.class_colors}
-        distributionLabel={`Frame ${record.frame_index}`}
-        entitiesLabel={metadata.tracking ? "ByteTrack active" : ""}
       />
     </main>
   );
@@ -191,13 +186,7 @@ export default function VideoDashboard({ job, metadata }) {
 
 function IconButton({ icon, label, onClick }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 shadow-sm transition hover:bg-white/20"
-    >
+    <button type="button" onClick={onClick} aria-label={label} title={label} className="icon-btn">
       <span className="icon text-[18px]" aria-hidden="true">{icon}</span>
     </button>
   );
@@ -206,14 +195,11 @@ function IconButton({ icon, label, onClick }) {
 function Keyframes({ jobId, keyframes, current, onSelect }) {
   return (
     <section className="dark-glass-card rounded-[20px] p-3.5" aria-label="Keyframes">
-      <div className="mb-2.5 flex items-center justify-between px-1">
-        <h3 className="flex items-center gap-2 text-xs font-bold">
-          <span className="icon text-[18px] text-white/70" aria-hidden="true">collections</span>
-          Keyframes
-          <span className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 font-semibold text-white/70">(sorted by object count)</span>
-        </h3>
-        <span className="font-mono text-xs text-white/60">Click to seek frame</span>
-      </div>
+      <h3 className="mb-2.5 flex items-center gap-2 px-1 text-xs font-bold">
+        <span className="icon text-[18px] text-white/70" aria-hidden="true">collections</span>
+        Keyframes
+        <span className="font-normal text-white/60">· most objects first</span>
+      </h3>
       {keyframes.length === 0 ? (
         <p className="px-1 text-xs text-white/60">No frames with detections.</p>
       ) : (
@@ -226,22 +212,22 @@ function Keyframes({ jobId, keyframes, current, onSelect }) {
                   type="button"
                   onClick={() => onSelect(keyframe.frame_index)}
                   aria-label={`Seek to frame ${keyframe.frame_index}, ${keyframe.total_objects} objects`}
-                  className={`w-full rounded-xl p-1.5 text-left shadow-sm backdrop-blur-md transition hover:scale-[1.02] ${
+                  className={`lift w-full rounded-xl p-1.5 text-left shadow-sm backdrop-blur-md ${
                     active ? "border-2 border-white/40 bg-white/10" : "border border-white/15 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   <span className="relative block aspect-video overflow-hidden rounded-lg border border-white/15">
                     <img src={thumbnailUrl(jobId, keyframe.frame_index)} alt="" className="h-full w-full object-cover" />
                     {(index === 0 || active) && (
-                      <span className={`absolute right-1 top-1 rounded-full px-1.5 font-mono text-[10px] font-bold ${active ? "bg-success-glow" : "bg-black/60"}`}>
+                      <span className={`absolute right-1 top-1 rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-success-glow" : "bg-black/60"}`}>
                         {active ? "Active" : "Peak"}
                       </span>
                     )}
-                    <span className="absolute bottom-1 left-1 rounded-full bg-black/70 px-1.5 font-mono text-[10px] font-bold">
+                    <span className="absolute bottom-1 left-1 rounded-full bg-black/70 px-1.5 text-[10px] font-bold">
                       {keyframe.total_objects} objects
                     </span>
                   </span>
-                  <span className="mt-1.5 flex items-center justify-between px-0.5 font-mono text-xs">
+                  <span className="mt-1.5 flex items-center justify-between px-0.5 text-xs">
                     <span className="font-bold">Frame {keyframe.frame_index}</span>
                     <span className="text-white/60">{formatSeconds(keyframe.timestamp_ms)}</span>
                   </span>
