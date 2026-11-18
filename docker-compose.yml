@@ -1,11 +1,11 @@
 # docker compose up --build   →   http://localhost:3000
 # Container paths and URLs are fixed here; the tunables can be overridden from .env.
+name: visionquest
 
 x-backend: &backend
   build:
     context: .
     dockerfile: backend/Dockerfile
-  image: visionquest-backend
   environment:
     REDIS_URL: redis://redis:6379/0
     DATA_DIR: /data
@@ -25,7 +25,7 @@ x-backend: &backend
 
 services:
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data

@@ -1,14 +1,16 @@
 import { metadataUrl, resultUrl } from "@/lib/api";
-import { deviceLabel } from "@/lib/format";
+import { deviceLabel, processingTime } from "@/lib/format";
 
-/** File name, model/device and a media summary, plus the two download links above each dashboard. */
+/** File name, model/device, a media summary and processing time, plus the two download links above each dashboard. */
 export default function FileBar({ job, summary, outputLabel }) {
+  const took = processingTime(job);
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold" title={job.filename}>{job.filename}</p>
         <p className="text-xs text-white/60">
           {job.model} · {deviceLabel(job.device)} · {summary}
+          {took && <> · processed in <span className="font-semibold text-white/80">{took}</span></>}
         </p>
       </div>
       <div className="flex items-center gap-2">

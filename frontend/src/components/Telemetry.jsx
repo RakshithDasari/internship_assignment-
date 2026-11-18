@@ -17,7 +17,7 @@ export default function Telemetry({ title, badge, jobId, record, colors }) {
   const colorOf = (name) => swatch(colors[name]);
 
   return (
-    <aside className="flex flex-col gap-5 overflow-y-auto p-5 lg:col-span-4">
+    <aside className="shade flex flex-col gap-5 overflow-y-auto p-5 lg:col-span-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-lg">
           <span className="font-light text-white/80">{title[0]}</span>

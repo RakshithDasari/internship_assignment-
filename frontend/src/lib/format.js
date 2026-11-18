@@ -31,6 +31,13 @@ export function deviceLabel(device) {
 /** 5000 -> "05.00s" */
 export const formatSeconds = (ms) => `${(ms / 1000).toFixed(2).padStart(5, "0")}s`;
 
+/** Worker start to finish (timestamps have 1 s resolution): "39 s", "2 m 05 s", or null. */
+export function processingTime(job) {
+  if (!job.started_at || !job.completed_at) return null;
+  const seconds = Math.max(1, Math.round((new Date(job.completed_at) - new Date(job.started_at)) / 1000));
+  return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} m ${String(seconds % 60).padStart(2, "0")} s`;
+}
+
 /** ISO UTC timestamp -> "Today, 14:31:16" or "17 Nov, 14:31" in the viewer's time zone. */
 export function formatDateTime(iso) {
   if (!iso) return "—";

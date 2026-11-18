@@ -9,7 +9,7 @@ export default function ImageDashboard({ job, metadata }) {
 
   return (
     <main className="grid flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-12 lg:overflow-hidden">
-      <section className="flex flex-col gap-4 border-b border-white/10 p-5 lg:col-span-8 lg:border-b-0 lg:border-r">
+      <section className="flex flex-col gap-4 shade-soft border-b border-white/10 p-5 lg:col-span-8 lg:border-b-0 lg:border-r">
         <FileBar job={job} outputLabel="image" summary={`${metadata.width} × ${metadata.height} · still image`} />
 
         <div className="keep-dark relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-[20px] border border-white/10 bg-black shadow-2xl">

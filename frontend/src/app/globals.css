@@ -288,6 +288,11 @@
     box-shadow: 0 6px 20px -8px rgba(60, 20, 20, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
   }
 
+  /* Dark-only shading for the large panes inside the window. No blur: glass is one layer. */
+  .shade-soft { background-color: rgb(0 0 0 / 0.25); }
+  .shade { background-color: rgb(0 0 0 / 0.4); }
+  [data-theme="light"] :is(.shade-soft, .shade) { background-color: transparent; }
+
   /* Text on scarlet stays white in both themes. */
   [data-theme="light"] .bg-scarlet { color: #ffffff; }
 
