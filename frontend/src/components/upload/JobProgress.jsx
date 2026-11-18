@@ -71,8 +71,6 @@ export default function JobProgress({ upload, job, frame }) {
 
       {live && (
         <div className="flex flex-col gap-3 sm:flex-row">
-          {/* A base64 frame streamed over the WebSocket; next/image can't optimise data URLs. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`data:image/jpeg;base64,${frame.preview}`}
             alt={`Live annotated frame ${frame.frame_index}`}

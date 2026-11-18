@@ -22,6 +22,12 @@ export function formatClock(ms) {
   return `${String(minutes).padStart(2, "0")}:${seconds}`;
 }
 
+/** "xpu:0" -> "GPU", "cpu" -> "CPU" (the exact device stays available as a tooltip). */
+export function deviceLabel(device) {
+  if (!device) return "—";
+  return device.startsWith("cpu") ? "CPU" : "GPU";
+}
+
 /** 5000 -> "05.00s" */
 export const formatSeconds = (ms) => `${(ms / 1000).toFixed(2).padStart(5, "0")}s`;
 

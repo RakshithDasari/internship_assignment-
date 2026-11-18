@@ -1,19 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useHealth } from "@/lib/hooks";
 import styles from "./intro.module.css";
 
 export default function IntroPage() {
   const router = useRouter();
   const { label, healthy } = useHealth();
-  const [run, setRun] = useState(0); // changing the key remounts the stage, which restarts every animation
 
+  // Space or Enter skips the intro.
   useEffect(() => {
     function onKey(event) {
-      if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(document.activeElement?.tagName)) return;
       if (event.key === " " || event.key === "Enter") {
         event.preventDefault();
         router.push("/upload");
@@ -23,11 +21,14 @@ export default function IntroPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [router]);
 
-  return (
-    <div className={styles.screen}>
-      <div key={`curtain-${run}`} className={styles.curtain} onAnimationEnd={() => router.push("/upload")} />
+  // The screen's own fade-out ends the intro; child animations also bubble here, so check the target.
+  function onScreenAnimationEnd(event) {
+    if (event.target === event.currentTarget) router.push("/upload");
+  }
 
-      <header className="flex max-h-[18vh] w-full flex-1 items-center justify-between px-8 font-mono text-xs tracking-widest text-white/60">
+  return (
+    <div className={styles.screen} onAnimationEnd={onScreenAnimationEnd}>
+      <header className={`${styles.bar} flex max-h-[18vh] w-full flex-1 items-center justify-between px-8 font-mono text-xs tracking-widest text-white/60`}>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 animate-pulse rounded-full bg-success-glow" />
           <span className="font-bold tracking-wider text-white">VISIONQUEST</span>
@@ -37,7 +38,7 @@ export default function IntroPage() {
         <span>YOLOv8 • YOLO-World • YOLOv8-Seg</span>
       </header>
 
-      <main key={`stage-${run}`} className={styles.letterbox}>
+      <main className={styles.letterbox}>
         <div className={styles.backdrop} />
         <InkIllustration className={styles.ink} />
         <div className={styles.reel} />
@@ -52,31 +53,12 @@ export default function IntroPage() {
         </div>
       </main>
 
-      <footer className="z-30 flex max-h-[18vh] w-full flex-1 items-center justify-between px-8">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/upload"
-            className="flex items-center gap-2 rounded-full border border-white/20 bg-scarlet px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(229,57,53,0.5)] transition hover:scale-105 hover:bg-scarlet-dark"
-          >
-            <span className="icon text-[16px]" aria-hidden="true">cloud_upload</span>
-            Upload
-          </Link>
-          <button
-            type="button"
-            onClick={() => setRun((n) => n + 1)}
-            className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-xs text-white transition hover:bg-white/20"
-          >
-            <span className="icon text-[15px]" aria-hidden="true">replay</span>
-            Replay Intro
-          </button>
-        </div>
-        <div className="flex items-center gap-4 font-mono text-xs text-white/60">
-          <span className="hidden items-center gap-2 sm:flex">
-            <span className={`h-1.5 w-1.5 rounded-full ${healthy ? "bg-success-glow" : "bg-white/40"}`} />
-            {label}
-          </span>
-          <span className="font-semibold text-white">Press [Space] to continue</span>
-        </div>
+      <footer className={`${styles.bar} flex max-h-[18vh] w-full flex-1 items-center justify-end gap-4 px-8 font-mono text-xs text-white/60`}>
+        <span className="hidden items-center gap-2 sm:flex">
+          <span className={`h-1.5 w-1.5 rounded-full ${healthy ? "bg-success-glow" : "bg-white/40"}`} />
+          {label}
+        </span>
+        <span className="font-semibold text-white">Press [Space] to continue</span>
       </footer>
     </div>
   );

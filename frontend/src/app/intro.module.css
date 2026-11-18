@@ -1,5 +1,11 @@
 /* Intro animations. */
 
+/*
+ * Timeline: while the title zooms in (0–4 s) the black bars slide out to the top and bottom
+ * and the red letterbox opens to full screen; the glint sweeps once (1.2–4.4 s); then the whole
+ * screen fades slowly (4–5.2 s). The end of that fade
+ * triggers the redirect to /upload (see page.jsx).
+ */
 .screen {
   height: 100vh;
   overflow: hidden;
@@ -8,16 +14,12 @@
   align-items: center;
   justify-content: center;
   background-color: #0b0707;
+  animation: fade-out 1.2s ease-in 4s forwards;
 }
 
-.curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #0b0707;
-  pointer-events: none;
-  opacity: 0;
-  animation: dissolve 5.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+.bar {
+  overflow: hidden;
+  animation: slide-away 4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 .letterbox {
@@ -35,6 +37,7 @@
   border-top: 2px solid rgba(255, 255, 255, 0.14);
   border-bottom: 2px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.95), 0 0 50px rgba(107, 30, 30, 0.35);
+  animation: open-up 4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 .backdrop {
@@ -86,7 +89,7 @@
       rgba(255, 255, 255, 0.8) 50%, rgba(229, 57, 53, 0.4) 54%, transparent 70%);
   background-size: 200% 100%;
   mix-blend-mode: color-dodge;
-  animation: glint 3.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s infinite;
+  animation: glint 3.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s 1 both;
 }
 
 .hero {
@@ -110,10 +113,21 @@
   margin-top: 18px;
 }
 
-@keyframes dissolve {
-  0%, 75% { opacity: 0; }
-  92% { opacity: 1; }
-  100% { opacity: 0.98; }
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes slide-away {
+  to { max-height: 0; opacity: 0; }
+}
+
+@keyframes open-up {
+  to {
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
+    border-color: transparent;
+  }
 }
 
 @keyframes jitter {
@@ -142,4 +156,6 @@
 @media (prefers-reduced-motion: reduce) {
   .ink, .reel, .glint { animation: none; }
   .hero { animation-duration: 0.01s; }
+  .bar, .letterbox { animation-duration: 1s; }
+  .screen { animation-delay: 1.6s; }
 }

@@ -12,6 +12,7 @@ export const FINISHED = new Set(["completed", "failed", "cancelled"]);
  */
 export function usePolling(load, intervalMs, enabled = true) {
   const [state, setState] = useState({ data: null, error: null });
+  const [refreshes, setRefreshes] = useState(0); // bumping this restarts the loop with an immediate fetch
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -35,9 +36,9 @@ export function usePolling(load, intervalMs, enabled = true) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [load, intervalMs, enabled]);
+  }, [load, intervalMs, enabled, refreshes]);
 
-  return state;
+  return { ...state, refresh: () => setRefreshes((n) => n + 1) };
 }
 
 /** Live backend status for the header chip: { label, healthy, health }. */
