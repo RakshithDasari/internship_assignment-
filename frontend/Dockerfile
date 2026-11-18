@@ -1,12 +1,9 @@
 # Build from the repo root: docker build -f frontend/Dockerfile .
-FROM node:22-alpine AS deps
-WORKDIR /app
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
-
 FROM node:22-alpine AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Dependencies first, so source edits don't re-run npm ci.
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
 COPY frontend/ .
 # NEXT_PUBLIC_* values are inlined into the browser bundle at build time, not read at runtime.
 ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000

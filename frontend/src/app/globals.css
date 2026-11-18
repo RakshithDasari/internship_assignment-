@@ -48,13 +48,6 @@
     font-variant-numeric: tabular-nums; /* equal-width digits, so changing numbers don't jitter */
   }
 
-  body:has(.screen-jobs) {
-    background-color: #070505;
-    background-image:
-      var(--grain),
-      radial-gradient(ellipse 80% 55% at 50% -5%, rgba(158, 31, 31, 0.2) 0%, transparent 70%),
-      linear-gradient(180deg, #070505 0%, #0d0a0a 50%, #070505 100%);
-  }
 
   .keep-dark {
     color: rgb(var(--ink));
@@ -263,8 +256,7 @@
   .lift:active { transform: translateY(0) scale(0.98); }
 
   /* Light theme: warm off-white glass over the same red intro scene, softer shadows. */
-  [data-theme="light"] body,
-  [data-theme="light"] body:has(.screen-jobs) {
+  [data-theme="light"] body {
     background-color: #f6efed;
     background-image:
       var(--grain),
