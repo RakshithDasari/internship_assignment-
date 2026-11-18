@@ -8,7 +8,7 @@ from app.config import settings
 
 log = logging.getLogger(__name__)
 
-celery_app = Celery("visionquest", broker=settings.redis_url)
+celery_app = Celery("visionquest", broker=settings.redis_url, include=["app.workers.tasks"])
 celery_app.conf.update(
     # Job state lives in SQLite; a Celery result backend would be a second source of truth.
     task_ignore_result=True,
