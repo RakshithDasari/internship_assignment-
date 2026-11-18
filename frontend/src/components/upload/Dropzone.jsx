@@ -90,7 +90,7 @@ function Preview({ file, url, disabled, onReplace, onRemove }) {
   const details = isImage ? "Image" : duration ? `Video · ${formatSeconds(duration * 1000)}` : "Video";
 
   return (
-    <div className="relative flex-1 bg-black">
+    <div className="keep-dark relative flex-1 bg-black">
       {isImage && <img src={url} alt={`Preview of ${file.name}`} className="absolute inset-0 h-full w-full object-contain" />}
       {!isImage && !unplayable && (
         <video

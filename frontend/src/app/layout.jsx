@@ -14,10 +14,15 @@ export const metadata = {
   description: "Upload images or videos, run YOLO models, and inspect detections frame by frame.",
 };
 
+// Runs before first paint so a saved light theme doesn't flash dark on load.
+const THEME_SCRIPT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch{}`;
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`dark ${sans.variable} ${bebas.variable} ${mono.variable}`}>
+    // suppressHydrationWarning: THEME_SCRIPT may set data-theme before React hydrates.
+    <html lang="en" className={`${sans.variable} ${bebas.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         {/* The icon font isn't available through next/font, so it's linked directly. */}
         <link rel="stylesheet" href={ICON_FONT} />
       </head>

@@ -3,17 +3,21 @@ import { classCounts, topDetectionIndex } from "@/lib/frame";
 import { shortId } from "@/lib/format";
 
 const SCARLET = "#E53935";
-const textOn = (color) => (color === SCARLET ? "#FFFFFF" : "#0B0707");
+const WHITE = "#FFFFFF";
+const INK = "rgb(var(--ink))";
+// White (reserved for person) follows the theme, so it stays visible on light cards.
+const swatch = (color) => (!color || color.toUpperCase() === WHITE ? INK : color);
+const textOn = (color) => (color === SCARLET ? WHITE : color === INK ? "rgb(var(--paper))" : "#0B0707");
 
 /** The dashboards' right-hand sidebar for one frame's metadata. `title` is [lightWord, boldWord]. */
 export default function Telemetry({ title, badge, jobId, record, colors }) {
   const detections = record?.detections ?? [];
   const top = topDetectionIndex(detections);
   const classes = classCounts(detections);
-  const colorOf = (name) => colors[name] ?? "#FFFFFF";
+  const colorOf = (name) => swatch(colors[name]);
 
   return (
-    <aside className="flex flex-col gap-5 overflow-y-auto bg-black/40 p-5 backdrop-blur-2xl lg:col-span-4">
+    <aside className="flex flex-col gap-5 overflow-y-auto p-5 lg:col-span-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-lg">
           <span className="font-light text-white/80">{title[0]}</span>

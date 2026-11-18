@@ -82,7 +82,7 @@ export default function JobsPage() {
           {error && <ErrorBanner title="Can't load jobs." detail={error.message} />}
           {actionError && <ErrorBanner title={actionError} onDismiss={() => setActionError(null)} />}
 
-          <div className="flex flex-col overflow-hidden rounded-[22px] border border-white/10 bg-black/40 backdrop-blur-2xl">
+          <div className="flex flex-col overflow-hidden rounded-[22px] border border-white/10 bg-black/40">
             <div className="flex flex-col-reverse gap-3 border-b border-white/10 p-4 lg:flex-row lg:items-center lg:justify-between">
               <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
                 {["all", ...STATUSES].map((value) => (

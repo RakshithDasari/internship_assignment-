@@ -155,7 +155,7 @@ function UploadScreen() {
               {(upload || job) && <JobProgress upload={upload} job={job} frame={frame} />}
             </div>
 
-            <div className="flex flex-col gap-5 rounded-[22px] border border-white/10 bg-black/40 p-5 backdrop-blur-2xl lg:col-span-5">
+            <div className="flex flex-col gap-5 rounded-[22px] border border-white/10 bg-black/40 p-5 lg:col-span-5">
               {models ? (
                 <ModelPicker
                   models={models.models}

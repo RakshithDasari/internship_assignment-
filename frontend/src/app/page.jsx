@@ -28,7 +28,7 @@ export default function IntroPage() {
   }
 
   return (
-    <div className={styles.screen} onAnimationEnd={onScreenAnimationEnd}>
+    <div className={`keep-dark ${styles.screen}`} onAnimationEnd={onScreenAnimationEnd}>
       <header className={`${styles.bar} flex max-h-[18vh] w-full flex-1 items-center justify-between px-8 font-mono text-xs tracking-widest text-white/60`}>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 animate-pulse rounded-full bg-success-glow" />

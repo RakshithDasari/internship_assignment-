@@ -1,11 +1,13 @@
 /** Design tokens: brand colours and fonts. */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "class",
   content: ["./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
+        // Theme-aware: `white` is the text/line colour, `black` the backdrop (see globals.css).
+        white: "rgb(var(--ink) / <alpha-value>)",
+        black: "rgb(var(--paper) / <alpha-value>)",
         cinema: { void: "#0B0707", surface: "#140D0D", border: "rgba(255, 255, 255, 0.12)" },
         scarlet: { DEFAULT: "#E53935", dark: "#B71C1C", glow: "#FF5252" },
         crimson: { DEFAULT: "#9E1F1F", deep: "#6B1E1E", subtle: "rgba(158, 31, 31, 0.18)" },

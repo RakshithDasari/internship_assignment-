@@ -1,0 +1,80 @@
+# docker compose up --build   →   http://localhost:3000
+# Container paths and URLs are fixed here; the tunables can be overridden from .env.
+
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  image: visionquest-backend
+  environment:
+    REDIS_URL: redis://redis:6379/0
+    DATA_DIR: /data
+    WEIGHTS_DIR: /weights
+    CORS_ORIGINS: http://localhost:3000
+    MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
+    ALLOWED_EXTENSIONS: ${ALLOWED_EXTENSIONS:-mp4,avi,mov,jpg,jpeg,png}
+    DEFAULT_MODEL: ${DEFAULT_MODEL:-yolov8n}
+    DEFAULT_CONFIDENCE: ${DEFAULT_CONFIDENCE:-0.45}
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  volumes:
+    - media:/data
+  depends_on:
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    <<: *backend
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  worker:
+    <<: *backend
+    command: celery -A app.workers.celery_app worker --concurrency=1 --loglevel=INFO
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.workers.celery_app inspect ping -d celery@$$HOSTNAME --timeout 5"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  media:
+  redis-data:

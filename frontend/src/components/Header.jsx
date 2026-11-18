@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { useHealth } from "@/lib/hooks";
 
 const NAV = [
@@ -44,8 +45,37 @@ export default function Header() {
         })}
       </nav>
 
-      <HealthStatus />
+      <div className="flex items-center">
+        <HealthStatus />
+        <ThemeToggle />
+      </div>
     </header>
+  );
+}
+
+// The theme lives on <html data-theme>, set before paint by the script in layout.jsx.
+const readTheme = () => document.documentElement.dataset.theme ?? "dark";
+const onThemeChange = (callback) => {
+  window.addEventListener("themechange", callback);
+  return () => window.removeEventListener("themechange", callback);
+};
+
+function ThemeToggle() {
+  const theme = useSyncExternalStore(onThemeChange, readTheme, () => "dark");
+  const next = theme === "light" ? "dark" : "light";
+
+  function toggle() {
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem("theme", next);
+    } catch {} // private mode: the choice just isn't remembered
+    window.dispatchEvent(new Event("themechange"));
+  }
+
+  return (
+    <button type="button" onClick={toggle} className="icon-btn" aria-label={`Switch to ${next} theme`} title={`Switch to ${next} theme`}>
+      <span className="icon text-[18px]" aria-hidden="true">{theme === "light" ? "dark_mode" : "light_mode"}</span>
+    </button>
   );
 }
 

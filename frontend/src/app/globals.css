@@ -6,12 +6,28 @@
  * Glass surfaces, refined: softer, wider crimson light pools and a
  * faint film grain inside the glass (frosted glass is textured). The grain never sits on top of
  * media, so result videos and images stay untouched. Jobs uses a darker variant (.screen-jobs).
+ *
+ * Themes: Tailwind's `white`/`black` read --ink (text, lines) and --paper (backdrop), so the
+ * light theme is mostly a swap of these two. Media stages and the intro use .keep-dark.
  */
 /* Animatable angle for the dropzone's travelling halo. */
 @property --halo-angle {
   syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
+}
+
+:root,
+.keep-dark {
+  --ink: 255 255 255;
+  --paper: 0 0 0;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --ink: 28 16 16;
+  --paper: 255 255 255;
+  color-scheme: light;
 }
 
 :root {
@@ -28,7 +44,7 @@
       radial-gradient(ellipse 60% 55% at 100% 100%, rgba(229, 57, 53, 0.16) 0%, transparent 70%),
       linear-gradient(180deg, #0b0707 0%, #120a0a 50%, #0b0707 100%);
     background-attachment: fixed;
-    color: #ffffff;
+    color: rgb(var(--ink));
     font-variant-numeric: tabular-nums; /* equal-width digits, so changing numbers don't jitter */
   }
 
@@ -40,15 +56,19 @@
       linear-gradient(180deg, #070505 0%, #0d0a0a 50%, #070505 100%);
   }
 
+  .keep-dark {
+    color: rgb(var(--ink));
+  }
+
   /* Accessibility: a visible keyboard focus ring everywhere. */
   :focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.7);
+    outline: 2px solid rgb(var(--ink) / 0.7);
     outline-offset: 2px;
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--ink) / 0.2); border-radius: 9999px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(229, 57, 53, 0.6); }
 }
 
@@ -80,7 +100,7 @@
     background-color: rgba(18, 12, 12, 0.78);
     background-image: var(--grain);
     backdrop-filter: blur(48px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--ink) / 0.14);
     box-shadow:
       0 30px 80px -15px rgba(0, 0, 0, 0.95),
       0 0 50px -10px rgba(158, 31, 31, 0.25),
@@ -88,16 +108,16 @@
   }
 
   .dark-glass-card {
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--ink) / 0.045);
     backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--ink) / 0.1);
     box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.65), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .dark-glass-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.22);
+    background: rgb(var(--ink) / 0.08);
+    border-color: rgb(var(--ink) / 0.22);
     box-shadow: 0 14px 40px -4px rgba(0, 0, 0, 0.8), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25);
   }
 
@@ -116,20 +136,20 @@
   .screen-jobs .dark-glass-window {
     background-color: rgba(14, 10, 10, 0.72);
     backdrop-filter: blur(48px) saturate(180%);
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgb(var(--ink) / 0.1);
     box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15);
   }
 
   .screen-jobs .dark-glass-card {
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--ink) / 0.035);
     backdrop-filter: blur(28px) saturate(160%);
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgb(var(--ink) / 0.08);
     box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .screen-jobs .dark-glass-card:hover {
-    background: rgba(255, 255, 255, 0.065);
-    border-color: rgba(255, 255, 255, 0.16);
+    background: rgb(var(--ink) / 0.065);
+    border-color: rgb(var(--ink) / 0.16);
   }
 
   /* The floating nav. Its own class, so no screen variant (e.g. .screen-jobs) can restyle it. */
@@ -137,7 +157,7 @@
     background-color: rgba(18, 12, 12, 0.72);
     background-image: var(--grain);
     backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgb(var(--ink) / 0.12);
     box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.8), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
   }
 
@@ -149,10 +169,9 @@
   .halo {
     position: relative;
     isolation: isolate;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(24px);
+    background-color: rgb(var(--paper) / 0.4);
     background-image: var(--grain);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--ink) / 0.08);
     transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -167,7 +186,15 @@
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: halo-spin 6s linear infinite;
+    animation: halo-spin 6s linear infinite paused;
+  }
+
+  /* The beam only travels while the zone is in use. A forever-running repaint inside the
+     window's glass made Chrome smear the nav's glass on this page. */
+  .halo:hover::before,
+  .halo:focus-within::before,
+  .halo-active::before {
+    animation-play-state: running;
   }
 
   .halo-active {
@@ -192,28 +219,28 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--ink) / 0.15);
+    background: rgb(var(--ink) / 0.1);
     backdrop-filter: blur(12px);
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(var(--ink) / 0.8);
     transition: background-color 0.2s, color 0.2s, transform 0.2s;
   }
 
-  .icon-btn:hover { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+  .icon-btn:hover { background: rgb(var(--ink) / 0.2); color: rgb(var(--ink)); }
   .icon-btn:active { transform: scale(0.94); }
   .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
-  /* White pill: the active state for secondary toggles; primary actions stay scarlet. */
+  /* Inverted pill: the active state for secondary toggles; primary actions stay scarlet. */
   .pill {
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgb(var(--ink) / 0.12);
+    background: rgb(var(--ink) / 0.06);
+    color: rgb(var(--ink) / 0.75);
     transition: background-color 0.2s, color 0.2s;
   }
 
-  .pill:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; }
-  .pill-active, .pill-active:hover { background: #ffffff; border-color: #ffffff; color: #0b0707; font-weight: 700; }
+  .pill:hover { background: rgb(var(--ink) / 0.12); color: rgb(var(--ink)); }
+  .pill-active, .pill-active:hover { background: rgb(var(--ink)); border-color: rgb(var(--ink)); color: rgb(var(--paper)); font-weight: 700; }
 
   /* Crimson text link with an arrow, for secondary navigation. */
   .text-link {
@@ -234,6 +261,35 @@
 
   .lift:hover { transform: translateY(-2px); }
   .lift:active { transform: translateY(0) scale(0.98); }
+
+  /* Light theme: warm off-white glass over the same red intro scene, softer shadows. */
+  [data-theme="light"] body,
+  [data-theme="light"] body:has(.screen-jobs) {
+    background-color: #f6efed;
+    background-image:
+      var(--grain),
+      radial-gradient(ellipse 85% 60% at 50% -5%, rgba(229, 57, 53, 0.14) 0%, transparent 72%),
+      linear-gradient(180deg, #f8f2f0 0%, #f1e8e6 100%);
+  }
+
+  [data-theme="light"] .dark-glass-window,
+  [data-theme="light"] .screen-jobs .dark-glass-window {
+    background-color: rgba(255, 251, 250, 0.8);
+    box-shadow: 0 30px 70px -20px rgba(60, 20, 20, 0.25), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="light"] .glass-nav {
+    background-color: rgba(255, 251, 250, 0.75);
+    box-shadow: 0 12px 32px -14px rgba(60, 20, 20, 0.3), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="light"] .dark-glass-card,
+  [data-theme="light"] .dark-glass-card:hover {
+    box-shadow: 0 6px 20px -8px rgba(60, 20, 20, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  /* Text on scarlet stays white in both themes. */
+  [data-theme="light"] .bg-scarlet { color: #ffffff; }
 
   @media (prefers-reduced-motion: reduce) {
     .fade-in { animation: none; }
