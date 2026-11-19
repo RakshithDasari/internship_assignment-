@@ -1,5 +1,6 @@
 # docker compose up --build   →   http://localhost:3000
-# Container paths and URLs are fixed here; the tunables can be overridden from .env.
+# Container paths are fixed here. Public addresses and tunables come from .env, with local defaults;
+# on a server, set CORS_ORIGINS and NEXT_PUBLIC_API_BASE_URL to the server's address.
 name: visionquest
 
 x-backend: &backend
@@ -10,7 +11,7 @@ x-backend: &backend
     REDIS_URL: redis://redis:6379/0
     DATA_DIR: /data
     WEIGHTS_DIR: /weights
-    CORS_ORIGINS: http://localhost:3000
+    CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
     ALLOWED_EXTENSIONS: ${ALLOWED_EXTENSIONS:-mp4,avi,mov,jpg,jpeg,png}
     DEFAULT_MODEL: ${DEFAULT_MODEL:-yolov8n}
@@ -62,7 +63,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
     ports:
       - "3000:3000"
     healthcheck:
