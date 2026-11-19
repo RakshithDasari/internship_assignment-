@@ -127,7 +127,7 @@ function UploadScreen() {
   return (
     <AppShell>
       <main className="flex flex-1 items-center p-4 sm:p-6 lg:p-8">
-        <form onSubmit={submit} className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <form onSubmit={submit} className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
           <div>
             <h1 className="text-3xl">
               <span className="font-light text-white/80">Upload</span> <span className="font-bold">Media</span>

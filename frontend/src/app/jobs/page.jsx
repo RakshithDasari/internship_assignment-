@@ -122,7 +122,7 @@ export default function JobsPage() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table className="w-full border-collapse text-left text-xs">
                 <thead>
                   <tr className="border-b border-white/10 text-white/50">

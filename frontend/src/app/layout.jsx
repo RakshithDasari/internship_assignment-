@@ -1,4 +1,6 @@
 import { Bebas_Neue, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import Header from "@/components/Header";
+import IntroBackdrop from "@/components/IntroBackdrop";
 import "./globals.css";
 
 // Downloaded at build time and served by Next itself: no runtime font requests, no layout shift.
@@ -26,7 +28,12 @@ export default function RootLayout({ children }) {
         {/* The icon font isn't available through next/font, so it's linked directly. */}
         <link rel="stylesheet" href={ICON_FONT} />
       </head>
-      <body className="font-body antialiased selection:bg-scarlet selection:text-white">{children}</body>
+      {/* Backdrop and nav live here, not in each page, so they persist across navigation (the nav pill can slide). */}
+      <body className="flex min-h-screen flex-col font-body antialiased selection:bg-scarlet selection:text-white">
+        <IntroBackdrop />
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }

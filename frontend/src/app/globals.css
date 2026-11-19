@@ -26,7 +26,7 @@
 
 :root[data-theme="light"] {
   --ink: 28 16 16;
-  --paper: 255 255 255;
+  --paper: 224 215 212; /* warm off-white: pure white glares */
   color-scheme: light;
 }
 
@@ -66,12 +66,14 @@
 }
 
 @layer components {
-  .fade-in {
-    animation: fade-in 0.6s ease-out both;
+  /* Page entrance, on the glass window itself: fading a parent instead would switch off the
+     window's blur until the fade ends, which shows as a snap (glaring in the light theme). */
+  .window-in {
+    animation: window-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   }
 
-  @keyframes fade-in {
-    from { opacity: 0; }
+  @keyframes window-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.985); }
   }
 
   .icon {
@@ -90,7 +92,7 @@
   }
 
   .dark-glass-window {
-    background-color: rgba(18, 12, 12, 0.78);
+    background-color: rgba(18, 12, 12, 0.86);
     background-image: var(--grain);
     backdrop-filter: blur(48px) saturate(200%);
     border: 1px solid rgb(var(--ink) / 0.14);
@@ -120,14 +122,23 @@
     box-shadow: 0 0 20px rgba(80, 125, 58, 0.25);
   }
 
-  .dark-segmented-active {
+  /* Red pill behind the active nav link; Header.jsx moves it. The overshooting curve makes it bounce. */
+  .nav-indicator {
+    position: absolute;
+    top: 0.375rem;
+    bottom: 0.375rem;
+    left: 0;
+    border-radius: 9999px;
     background: #e53935;
-    color: #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition:
+      transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+      width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.2s;
   }
 
   .screen-jobs .dark-glass-window {
-    background-color: rgba(14, 10, 10, 0.72);
+    background-color: rgba(14, 10, 10, 0.84);
     backdrop-filter: blur(48px) saturate(180%);
     border-color: rgb(var(--ink) / 0.1);
     box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15);
@@ -147,7 +158,7 @@
 
   /* The floating nav. Its own class, so no screen variant (e.g. .screen-jobs) can restyle it. */
   .glass-nav {
-    background-color: rgba(18, 12, 12, 0.72);
+    background-color: rgba(18, 12, 12, 0.82);
     background-image: var(--grain);
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgb(var(--ink) / 0.12);
@@ -266,18 +277,27 @@
 
   [data-theme="light"] .dark-glass-window,
   [data-theme="light"] .screen-jobs .dark-glass-window {
-    background-color: rgba(255, 251, 250, 0.8);
+    background-color: rgba(212, 200, 197, 0.9);
     box-shadow: 0 30px 70px -20px rgba(60, 20, 20, 0.25), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.9);
   }
 
   [data-theme="light"] .glass-nav {
-    background-color: rgba(255, 251, 250, 0.75);
+    background-color: rgba(212, 200, 197, 0.88);
     box-shadow: 0 12px 32px -14px rgba(60, 20, 20, 0.3), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   [data-theme="light"] .dark-glass-card,
   [data-theme="light"] .dark-glass-card:hover {
     box-shadow: 0 6px 20px -8px rgba(60, 20, 20, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  /* The intro scene behind the app: red glows in the middle, fades to black at the corners. */
+  .backdrop-vignette {
+    background: radial-gradient(ellipse at center, transparent 22%, rgba(10, 3, 3, 0.7) 58%, #050202 92%);
+  }
+
+  [data-theme="light"] .backdrop-vignette {
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(20, 4, 4, 0.6) 80%, #0b0707 100%);
   }
 
   /* Dark-only shading for the large panes inside the window. No blur: glass is one layer. */
@@ -289,9 +309,10 @@
   [data-theme="light"] .bg-scarlet { color: #ffffff; }
 
   @media (prefers-reduced-motion: reduce) {
-    .fade-in { animation: none; }
+    .window-in { animation: none; }
     .lift, .icon-btn, .halo { transition: none; }
     .lift:hover, .lift:active, .icon-btn:active, .halo-active { transform: none; }
     .halo::before { animation: none; }
+    .nav-indicator { transition: none; }
   }
 }

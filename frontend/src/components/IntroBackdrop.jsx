@@ -9,7 +9,7 @@ export default function IntroBackdrop() {
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#9e1f1f_0%,#6b1e1e_55%,#3b0d0d_100%)]" />
       <InkIllustration className="absolute inset-0 h-full w-full opacity-55 mix-blend-multiply" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(20,4,4,0.6)_80%,#0b0707_100%)]" />
+      <div className="backdrop-vignette absolute inset-0" />
     </div>
   );
 }
