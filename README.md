@@ -180,14 +180,16 @@ Setup steps and the manual test plan are in [docs/testing.md](docs/testing.md).
 
 ## Performance
 
-For a 6.7-second 4K clip (200 frames) with `yolov8n`:
+Two runs in Docker, timed by the app itself (the dashboard shows each job's processing time):
 
-| Setup | Total time |
-|---|---|
-| Docker, laptop CPU | 39 s (about 63 ms of model time per frame) |
-| Docker, NVIDIA GPU | under 15 s |
+| Setup | Clip | Model | Total time | Model time per frame |
+|---|---|---|---|---|
+| Laptop CPU | 6.7 s, 4K, 200 frames | `yolov8n` | 39 s | about 63 ms |
+| NVIDIA RTX 4050 laptop GPU | 18.4 s, 552 frames | `yolov8s` | 30 s | about 11 ms |
 
-Output video is scaled down to 1080p so it plays smoothly in the browser.
+On the GPU, the larger model processes a video in well under twice its running time. Total time
+includes decoding, tracking, drawing and encoding as well as the model. Output video is scaled down
+to 1080p so it plays smoothly in the browser.
 
 ## Why these choices
 
