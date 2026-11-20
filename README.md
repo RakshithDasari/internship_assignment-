@@ -93,6 +93,9 @@ With an NVIDIA GPU, add the override file:
 docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
 ```
 
+Only use this if `nvidia-smi` works on your machine: without an NVIDIA GPU the backend and worker
+won't start. The first GPU build downloads about 5 GB (CUDA libraries), so it takes longer.
+
 [docs/setup.md](docs/setup.md) covers health checks, running without Docker and troubleshooting.
 
 ## Configuration
