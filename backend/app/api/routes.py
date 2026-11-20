@@ -144,9 +144,8 @@ def upload(
     prompt_text = ", ".join(registry.parse_prompt(prompt)) if spec.needs_prompt else None
     registry.resolve_device(device)  # rejects bad values and "gpu" on a CPU-only server
 
-    # Fast reject for honest clients. UploadFile is already spooled to a temp file
-    # by the time we run, so a client lying about Content-Length is only caught by the byte
-    # count below; a streaming multipart parser would close that gap.
+    # Reject oversized uploads early. FastAPI has already spooled the body to a temp file by
+    # now, so a client that lies about Content-Length is only caught by the byte count below.
     declared = int(request.headers.get("content-length") or 0)
     if declared > settings.max_file_size_bytes + MULTIPART_OVERHEAD_BYTES:
         raise _too_large()

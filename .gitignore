@@ -1,4 +1,4 @@
-# Local environment values (the committed template is .env.example)
+# Environment values (the template is .env.example)
 .env
 .env.local
 
@@ -14,10 +14,10 @@ htmlcov/
 node_modules/
 .next/
 
-# Local test footage (large, third-party licensed)
+# Local test footage
 samples/
 
-# Runtime data & model weights (created by the app, never committed)
+# Runtime data and model weights
 data/
 weights/
 *.pt

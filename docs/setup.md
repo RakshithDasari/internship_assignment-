@@ -65,7 +65,7 @@ curl http://localhost:8000/health
 
 `device` shows what jobs will run on: `cpu`, or `cuda:0` with an NVIDIA GPU.
 
-Then open http://localhost:3000. The dot in the top right of the page says "Live" when everything is
+Then open `http://localhost:3000`. The dot in the top right of the page says "Live" when everything is
 running. If something's wrong, `docker compose logs backend` (or `worker`, `frontend`, `redis`) shows
 why.
 

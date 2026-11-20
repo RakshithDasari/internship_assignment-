@@ -85,7 +85,7 @@ docker compose up --build
 ```
 
 The first build takes 10 to 15 minutes, mostly downloading PyTorch and the model weights. Once
-`docker compose ps` shows all four services as healthy, open http://localhost:3000.
+`docker compose ps` shows all four services as healthy, open `http://localhost:3000`.
 
 With an NVIDIA GPU, add the override file:
 
@@ -117,8 +117,9 @@ Inside Docker, Compose sets the last three itself. They matter when you run the 
 
 ## API
 
-Interactive docs are at http://localhost:8000/docs. Errors always come back as
-`{"detail": "...", "code": "..."}`.
+Once the app is running, FastAPI also serves interactive docs at `localhost:8000/docs`, where every
+endpoint can be tried from the browser (and a read-only version at `/redoc`). Errors always come back
+as `{"detail": "...", "code": "..."}`.
 
 | Method | Endpoint | What it does |
 |---|---|---|
@@ -202,18 +203,23 @@ Output video is scaled down to 1080p so it plays smoothly in the browser.
 - I chose YOLO-World and YOLOv8-Seg over SAM 2. They run in the same Ultralytics pipeline, work on
   CPU, and between them cover open-vocabulary detection and segmentation.
 
-## Limitations
+## Limitations and future work
 
 - There are no user accounts, so anyone who can open the app sees every job. It's meant to run
   locally.
 - Jobs run one at a time, and on CPU a long video can take a few minutes.
 - GPU support in Docker is NVIDIA only. My Intel Arc GPU works when the app runs natively, but Docker
   Desktop can't pass it into containers.
-- Old jobs aren't cleaned up automatically. Delete them from the Jobs page.
+- Nothing is deleted automatically: uploaded files and results stay on disk until you delete the job
+  from the Jobs page.
 - Tracking IDs can switch when objects cross paths or disappear for a while.
 
-If I keep working on it, the next steps would be user accounts, more than one worker, automatic
-cleanup of old jobs, and hosting it online over HTTPS.
+I see this as a base rather than a finished product. Detection, tracking and per-frame metadata
+behind an async pipeline is the core of many applications: counting objects that cross a line,
+measuring how long people stay in an area, blurring faces for privacy, raising alerts from live
+camera feeds, or searching hours of footage for a moment. On the infrastructure side, the next thing
+to explore is running inference on a rented cloud GPU instead of local hardware, with more workers
+processing jobs in parallel.
 
 ## Project layout
 

@@ -3,9 +3,8 @@
 @tailwind utilities;
 
 /*
- * Glass surfaces, refined: softer, wider crimson light pools and a
- * faint film grain inside the glass (frosted glass is textured). The grain never sits on top of
- * media, so result videos and images stay untouched. Jobs uses a darker variant (.screen-jobs).
+ * Glass surfaces carry a faint film grain; it never sits on top of media, so result videos and
+ * images stay untouched. Jobs uses a darker variant (.screen-jobs).
  *
  * Themes: Tailwind's `white`/`black` read --ink (text, lines) and --paper (backdrop), so the
  * light theme is mostly a swap of these two. Media stages and the intro use .keep-dark.

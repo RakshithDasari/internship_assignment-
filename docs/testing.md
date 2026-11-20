@@ -2,7 +2,7 @@
 
 ## Manual test plan
 
-Start the app (see [setup](setup.md)) and open http://localhost:3000. You'll need a photo with people
+Start the app (see [setup](setup.md)) and open `http://localhost:3000`. You'll need a photo with people
 or cars in it, a short video, a large video of around 200 MB, and some file the app doesn't accept,
 like a `.txt`. Free stock footage sites such as Pexels work well for the videos.
 
