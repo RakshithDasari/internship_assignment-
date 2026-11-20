@@ -180,16 +180,19 @@ Setup steps and the manual test plan are in [docs/testing.md](docs/testing.md).
 
 ## Performance
 
-Two runs in Docker, timed by the app itself (the dashboard shows each job's processing time):
+All runs use the same 18.4-second clip (552 frames) in Docker, with confidence 0.60 and the device
+set to auto. Times come from the app itself, which shows each job's processing time on its
+dashboard.
 
-| Setup | Clip | Model | Total time | Model time per frame |
-|---|---|---|---|---|
-| Laptop CPU | 6.7 s, 4K, 200 frames | `yolov8n` | 39 s | about 63 ms |
-| NVIDIA RTX 4050 laptop GPU | 18.4 s, 552 frames | `yolov8s` | 30 s | about 11 ms |
+| Hardware | Model | Total time | Frames per second |
+|---|---|---|---|
+| Laptop CPU | `yolov8n` | 3 min 58 s | 2.3 |
+| Laptop CPU | `yolov8s` | 4 min 46 s | 1.9 |
+| NVIDIA RTX 4050 laptop GPU | `yolov8s` | 30 s | 18.4 |
 
-On the GPU, the larger model processes a video in well under twice its running time. Total time
-includes decoding, tracking, drawing and encoding as well as the model. Output video is scaled down
-to 1080p so it plays smoothly in the browser.
+With the same model, the GPU is about 9.5 times faster than the CPU and processes the video in
+under twice its length. Total time covers the whole job: decoding, inference, tracking, drawing and
+encoding. Output video is scaled down to 1080p so it plays smoothly in the browser.
 
 ## Why these choices
 
@@ -209,7 +212,8 @@ to 1080p so it plays smoothly in the browser.
 
 - There are no user accounts, so anyone who can open the app sees every job. It's meant to run
   locally.
-- Jobs run one at a time, and on CPU a long video can take a few minutes.
+- Jobs run one at a time, and CPU processing is slow: an 18-second clip takes about 4 minutes. A GPU
+  brings that down to about 30 seconds.
 - GPU support in Docker is NVIDIA only. My Intel Arc GPU works when the app runs natively, but Docker
   Desktop can't pass it into containers.
 - Nothing is deleted automatically: uploaded files and results stay on disk until you delete the job

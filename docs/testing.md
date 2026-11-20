@@ -15,7 +15,7 @@ like a `.txt`. Free stock footage sites such as Pexels work well for the videos.
 | 3 | Metadata sync | Drag the seek bar to frame 50 (the arrow keys move one frame at a time) | The sidebar shows frame 50's detections, matching `curl http://localhost:8000/jobs/<id>/metadata/50` |
 | 4 | Model switching | Upload the same video with `yolov8n`, then with `yolov8n-seg` | Both jobs appear in Jobs history, each with its own model, and each opens its own dashboard |
 | 5 | Error handling | Upload the `.txt` file | A message says the format isn't supported and lists the allowed ones. No job is created |
-| 6 | Large file | Upload the 200 MB video | It uploads and processes without errors (this takes a few minutes on CPU), and the containers keep running |
+| 6 | Large file | Upload the 200 MB video | It uploads and processes without errors, and the containers keep running. On CPU this takes a long time (an 18-second clip takes about 4 minutes), so expect to wait |
 | 7 | YOLO-World | Pick `yolov8s-worldv2`, type `person, car`, upload a street video | Only people and cars are detected. Leaving the prompt empty shows an error asking for one |
 | 8 | Tracking and keyframes | On a video dashboard, step through frames, then click a keyframe thumbnail | Objects keep the same `#TRK` number from frame to frame, and the keyframe jumps the video to that moment |
 | 9 | Cancel and delete | Start a long video and upload a second file. Cancel the second one in Jobs, then delete a finished job | The queued job shows Cancelled, and the deleted job disappears |
