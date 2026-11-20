@@ -9,7 +9,7 @@ and how long the frame took.
 
 ![Playing an annotated video while the sidebar updates](docs/images/dashboard-demo.gif)
 
-## What it does
+## Overview
 
 - Upload JPG/PNG images or MP4/AVI/MOV videos, choose a model and a confidence threshold.
 - Jobs run in a background worker. While one runs, the upload page shows live preview frames.
@@ -38,7 +38,7 @@ and how long the frame took.
   </tr>
 </table>
 
-## How it fits together
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -73,10 +73,14 @@ to the browser over a WebSocket.
   results/{job_id}/metadata.json
 ```
 
-## Getting started
+## Prerequisites
 
-You need Docker with Compose v2, about 6 GB of free disk and ideally 8 GB of RAM for Docker. A GPU is
-optional.
+- Docker with Compose v2 (Docker Desktop on Windows or macOS)
+- About 6 GB of free disk (12 GB if you use the NVIDIA GPU build)
+- Ideally 8 GB of RAM available to Docker
+- A GPU is optional: everything runs on CPU, and an NVIDIA GPU makes processing much faster
+
+## Quick start
 
 ```bash
 git clone https://github.com/RakshithDasari/internship_assignment-.git visionquest
@@ -118,7 +122,7 @@ Everything has a default, so a `.env` file is optional. To change something, cop
 
 Inside Docker, Compose sets the last three itself. They matter when you run the backend natively.
 
-## API
+## API reference
 
 Once the app is running, FastAPI also serves interactive docs at `localhost:8000/docs`, where every
 endpoint can be tried from the browser (and a read-only version at `/redoc`). Errors always come back
@@ -169,7 +173,7 @@ Each frame's metadata looks like this (one detection shown):
 }
 ```
 
-## Tests
+## Running tests
 
 The backend has 27 tests covering 85% of the code. They run the real models on real images and don't
 need Docker:
@@ -211,7 +215,7 @@ encoding. Output video is scaled down to 1080p so it plays smoothly in the brows
 - I chose YOLO-World and YOLOv8-Seg over SAM 2. They run in the same Ultralytics pipeline, work on
   CPU, and between them cover open-vocabulary detection and segmentation.
 
-## Limitations and future work
+## Known limitations and future work
 
 - There are no user accounts, so anyone who can open the app sees every job. It's meant to run
   locally.
